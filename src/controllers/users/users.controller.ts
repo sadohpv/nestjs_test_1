@@ -8,11 +8,15 @@ import {
   Delete,
   Query,
   Ip,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from 'src/services/users/users.service';
 import { Prisma, Role } from '@prisma/client';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { LoggerService } from 'src/logger/logger.service';
+import { CreateUserDto } from 'src/types/users/create-user.dto';
+
 @SkipThrottle() // skip limit request per time
 @Controller('users')
 export class UsersController {
@@ -20,7 +24,8 @@ export class UsersController {
   private readonly logger = new LoggerService(UsersController.name);
 
   @Post()
-  create(@Body() createUserDto: Prisma.UserCreateInput) {
+  @UsePipes(ValidationPipe)
+  create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 

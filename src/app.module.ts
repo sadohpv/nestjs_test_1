@@ -7,6 +7,9 @@ import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from './logger/logger.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { AuthService } from './services/auth/auth.service';
+import { AuthController } from './controllers/auth/auth.controller';
 
 @Module({
   imports: [
@@ -28,14 +31,17 @@ import { LoggerModule } from './logger/logger.module';
     ]),
 
     LoggerModule,
+
+    AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [
     AppService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    AuthService,
   ],
 })
 export class AppModule {}
