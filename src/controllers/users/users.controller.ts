@@ -26,7 +26,7 @@ export class UsersController {
   @Post()
   @UsePipes(ValidationPipe)
   create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    
   }
 
   @SkipThrottle({ default: false }) // skip limit request per time

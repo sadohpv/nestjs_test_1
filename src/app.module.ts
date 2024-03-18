@@ -10,24 +10,19 @@ import { LoggerModule } from './logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AuthService } from './services/auth/auth.service';
 import { AuthController } from './controllers/auth/auth.controller';
-
+import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     UsersModule,
-
+    ConfigModule.forRoot(),
     DatabaseModule,
 
     ThrottlerModule.forRoot([
       {
         name: 'short',
-        ttl: 60000,
-        limit: 3, // allow 3 request in 1minute
+        ttl: 1000,
+        limit: 100000, // allow 3 request in 1minute
       },
-      // {
-      //   name: 'long',
-      //   ttl: 60000,
-      //   limit: 100, // allow 100 request in 1minute
-      // },
     ]),
 
     LoggerModule,
