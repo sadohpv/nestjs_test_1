@@ -1,4 +1,4 @@
-import { NestFactory,HttpAdapterHost } from '@nestjs/core';
+import { NestFactory, HttpAdapterHost } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { LoggerService } from './logger/logger.service';
 import { AllExceptionsFilter } from './all-exception.filter';
@@ -13,11 +13,14 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
-  const {httpAdapter} = app.get(HttpAdapterHost);
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter))
+  app.enableCors({
+    credentials: true,
+    origin: true,
+  });
+  const { httpAdapter } = app.get(HttpAdapterHost);
+  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
 
-
-  app.enableCors();
+  
   await app.listen(2110);
 }
 bootstrap();

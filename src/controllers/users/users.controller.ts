@@ -10,12 +10,14 @@ import {
   Ip,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from 'src/services/users/users.service';
 import { Prisma, Role } from '@prisma/client';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { LoggerService } from 'src/logger/logger.service';
 import { CreateUserDto } from 'src/types/users/create-user.dto';
+import { Request } from 'express';
 
 @SkipThrottle() // skip limit request per time
 @Controller('users')
@@ -43,9 +45,13 @@ export class UsersController {
       limit: 3,
     },
   }) // Overwrite throttle or create a new throttle
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+
+
+  
+  @Get('owner')
+  findOne(@Req() request: Request) {
+    console.log(request);
+    // return this.usersService.findOne(+id);
   }
 
   @Patch(':id')

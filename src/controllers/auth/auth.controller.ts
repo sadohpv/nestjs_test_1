@@ -12,13 +12,13 @@ import { LoggerService } from 'src/logger/logger.service';
 import { AuthService } from 'src/services/auth/auth.service';
 import { CreateUserDto, LoginUserDto } from 'src/types/users/create-user.dto';
 import { Response } from 'express';
-// import { Public } from 'src/modules/auth/auth.module';
+import { PublicRoute } from 'src/modules/auth/public.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   private readonly logger = new LoggerService(AuthController.name);
 
-  // @Public()
+  @PublicRoute()
   @Post('register')
   @UsePipes(ValidationPipe)
   async createUser(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
@@ -31,19 +31,23 @@ export class AuthController {
       return res.status(HttpStatus.BAD_REQUEST).send();
     }
   }
-  // @Public()
+  @PublicRoute()
   @Post('login')
   @UsePipes(ValidationPipe)
   async loginUser(@Body() loginUserDto: LoginUserDto, @Res() res: Response) {
     if (loginUserDto) {
-      let result = {};
+      let result: any = {};
       if (loginUserDto.type === false) {
         result = await this.authService.handleLoginEmail(loginUserDto);
       } else {
         result = await this.authService.handleLoginPhone(loginUserDto);
       }
       if (result !== false) {
-        this.logger.log(`Request for register user `, AuthController.name);
+        this.logger.log(`Request for login user `, AuthController.name);
+        res.cookie('accessToken', result.access_token, {
+          expires: new Date(Date.now() + 900000),
+          httpOnly: true,
+        });
         return res.status(HttpStatus.CREATED).send({ result });
       } else {
         return res
