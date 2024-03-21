@@ -170,4 +170,44 @@ export class AuthService {
       return false;
     }
   }
+
+  async handleRefreshToken(id: number) {
+    const result = await this.databaseService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (result) {
+      const payload = {
+        id: result.id,
+        slug: result.slug,
+      };
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } else {
+      return false;
+    }
+  }
+  async handleGetOwnerData(id: number) {
+    const result = await this.databaseService.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id:true,
+        slug:true,
+        userName:true,
+        phoneNumber:true,
+        gender:true,
+        createdAt:true,
+        avatar:true,
+        address:true,
+        email:true,
+      },
+    });
+    
+    return result;
+  }
 }
