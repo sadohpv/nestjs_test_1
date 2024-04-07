@@ -13,22 +13,176 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Post {
+  id            Int        @id @default(autoincrement())
+  userId        Int
+  author        User       @relation(fields: [userId], references: [id])
+  img           String
+  content       String?
+  likeNumber    Int
+  shareNumber   Int
+  commentNumber Int
+  published     Boolean    @default(false)
+  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime   @default(now())
+  Comments      Comment[]
+  LikePosts     LikePost[]
+  Saves         SavePost[]
+  Reports       Report[]
+}
+
 model User {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
-  
-  email       String   @unique
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  email       String        @unique
   password    String
   userName    String
-  phoneNumber String   @unique
+  phoneNumber String        @unique
   gender      Boolean
   address     String
-
   avatar      String
-  ban         Ban 
+  ban         Ban
   role        Role
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Posts       Post[]
+  Comments    Comment[]
+  ComInComs   ComInCom[]
+  LikeComs    LikeComment[]
+  LikePosts   LikePost[]
+  NotifyFrom  Notify[]      @relation("userFrom")
+  NotifyTo    Notify[]      @relation("userTo")
+  FriendFrom  Friend[]      @relation("friendFrom")
+  FriendTo    Friend[]      @relation("friendTo")
+  Saves       SavePost[]
+  Reports     Report[]
+  ChatFrom    Chat[]        @relation("chatFrom")
+  ChatTo      Chat[]        @relation("chatTo")
+}
+
+model Comment {
+  id         Int        @id @default(autoincrement())
+  author     User       @relation(fields: [userId], references: [id])
+  userId     Int
+  postWhere  Post       @relation(fields: [postId], references: [id])
+  postId     Int
+  likeNumber Int
+  content    String
+  ComInComs  ComInCom[]
+  Reports    Report[]
+  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime   @default(now())
+}
+
+model ComInCom {
+  id         Int           @id @default(autoincrement())
+  author     User          @relation(fields: [userId], references: [id])
+  Comment    Comment?      @relation(fields: [commentId], references: [id])
+  likeNumber Int
+  content    String
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  userId     Int
+  commentId  Int?
+  LikeComs   LikeComment[]
+}
+
+model LikeComment {
+  id         Int       @id @default(autoincrement())
+  User       User?     @relation(fields: [userId], references: [id])
+  userId     Int?
+  ComInCom   ComInCom? @relation(fields: [comInComId], references: [id])
+  comInComId Int?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model LikePost {
+  id        Int      @id @default(autoincrement())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Friend {
+  id        Int        @id @default(autoincrement())
+  UserFrom  User?      @relation("friendFrom", fields: [userFrom], references: [id])
+  userFrom  Int?
+  UserTo    User?      @relation("friendTo", fields: [userTo], references: [id])
+  userTo    Int?
+  status    FriendType
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Notify {
+  id        Int        @id @default(autoincrement())
+  UserFrom  User?      @relation(name: "userFrom", fields: [userFrom], references: [id])
+  userFrom  Int?
+  UserTo    User?      @relation(name: "userTo", fields: [userTo], references: [id])
+  userTo    Int?
+  type      NotifyType @default(NONE)
+  content   String?    @default("")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model SavePost {
+  id        Int      @id @default(autoincrement())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Report {
+  id        Int      @id @default(autoincrement())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  Comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId Int?
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  UserFrom  User?    @relation(name: "chatFrom", fields: [userFrom], references: [id])
+  userFrom  Int?
+  UserTo    User?    @relation(name: "chatTo", fields: [userTo], references: [id])
+  userTo    Int?
+  content   String
+  status    ChatType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum FriendType {
+  ACCEPTED
+  REQUIRED
+}
+
+enum NotifyType {
+  ADDFRIEND
+  COMMENT
+  NOTIFY
+  LIKECOMMENT
+  LIKEPOST
+  NONE
+}
+
+enum ChatType {
+  SEND
+  RECEIVE
+  SEEN
 }
 
 enum Ban {

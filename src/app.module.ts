@@ -12,6 +12,16 @@ import { AuthService } from './services/auth/auth.service';
 import { AuthController } from './controllers/auth/auth.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AuthGuard } from './modules/auth/auth.guard';
+import { PostController } from './controllers/post/post.controller';
+import { PostsService } from './services/posts/posts.service';
+import { CommentController } from './controllers/comment/comment.controller';
+import { CommentService } from './services/comment/comment.service';
+import { LikePostController } from './controllers/like-post/like-post.controller';
+import { LikeCommentController } from './controllers/like-comment/like-comment.controller';
+import { LikeCommentController } from './services/like-comment/like-comment.controller';
+import { LikePostController } from './services/like-post/like-post.controller';
+import { LikePostService } from './services/like-post/like-post.service';
+import { LikeCommentService } from './services/like-comment/like-comment.service';
 @Module({
   imports: [
     UsersModule,
@@ -30,7 +40,7 @@ import { AuthGuard } from './modules/auth/auth.guard';
 
     AuthModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, PostController, CommentController, LikePostController, LikeCommentController],
   providers: [
     AppService,
     {
@@ -42,6 +52,10 @@ import { AuthGuard } from './modules/auth/auth.guard';
     //   useClass: AuthGuard,
     // },
     AuthService,
+    PostsService,
+    CommentService,
+    LikePostService,
+    LikeCommentService,
   ],
 })
 export class AppModule {}

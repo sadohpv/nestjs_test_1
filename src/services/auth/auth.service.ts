@@ -17,15 +17,10 @@ export class AuthService {
 
   async create(createUserDto: CreateUserDto) {
     const checkAccount = await this.findOneAccount(createUserDto.email);
-    const checkPhone = await this.findOneAccount(createUserDto.phoneNumber);
-
+    const checkPhone = await this.findOnePhone(createUserDto.phoneNumber);
+    console.log(checkPhone);
     if (checkAccount === false) {
       if (checkPhone === false) {
-        return {
-          EC: 2,
-          MS: 'Your phone number is already existed. Try another !',
-        };
-      } else {
         try {
           const checkSlug = await this.createSlug(createUserDto.userName);
           const passHash = await this.createHashPassword(
@@ -63,6 +58,11 @@ export class AuthService {
             MS: 'SOMETHING WRONG !',
           };
         }
+      } else {
+        return {
+          EC: 2,
+          MS: 'Your phone number is already existed. Try another !',
+        };
       }
     } else {
       return {
@@ -196,18 +196,18 @@ export class AuthService {
         id: id,
       },
       select: {
-        id:true,
-        slug:true,
-        userName:true,
-        phoneNumber:true,
-        gender:true,
-        createdAt:true,
-        avatar:true,
-        address:true,
-        email:true,
+        id: true,
+        slug: true,
+        userName: true,
+        phoneNumber: true,
+        gender: true,
+        createdAt: true,
+        avatar: true,
+        address: true,
+        email: true,
       },
     });
-    
+
     return result;
   }
 }
