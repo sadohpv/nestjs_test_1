@@ -1,18 +1,14 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreatePostDto {
+export class LikePostDto {
+  @IsBoolean()
+  like: boolean;
+
   @IsNotEmpty()
   @IsNumber()
   userId: number;
-
-
+  
   @IsNotEmpty()
-  @IsString()
-  img: string;
-
-  @IsNotEmpty()
-  @IsString()
-  content: string;
-
-  sharedPost: number | null;
+  @IsNumber()
+  postId: number;
 }

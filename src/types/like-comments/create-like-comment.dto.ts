@@ -5,9 +5,9 @@ export class CreateLikeCommentDto {
   userId: number;
 
   @IsNotEmpty()
-  postId: number;
+  @IsNumber()
+  comId: number;
 
-  @IsNotEmpty()
-  @IsString()
-  content: string;
+  @IsBoolean()
+  like: boolean;
 }

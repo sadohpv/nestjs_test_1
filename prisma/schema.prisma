@@ -29,65 +29,80 @@ model Post {
   LikePosts     LikePost[]
   Saves         SavePost[]
   Reports       Report[]
+  sharePostId   Int?
+  prevPost      Post?      @relation("byPost", fields: [sharePostId], references: [id])
+  nextPost      Post[]     @relation("byPost")
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  slug        String        @unique
-  email       String        @unique
-  password    String
-  userName    String
-  phoneNumber String        @unique
-  gender      Boolean
-  address     String
-  avatar      String
-  ban         Ban
-  role        Role
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Posts       Post[]
-  Comments    Comment[]
-  ComInComs   ComInCom[]
-  LikeComs    LikeComment[]
-  LikePosts   LikePost[]
-  NotifyFrom  Notify[]      @relation("userFrom")
-  NotifyTo    Notify[]      @relation("userTo")
-  FriendFrom  Friend[]      @relation("friendFrom")
-  FriendTo    Friend[]      @relation("friendTo")
-  Saves       SavePost[]
-  Reports     Report[]
-  ChatFrom    Chat[]        @relation("chatFrom")
-  ChatTo      Chat[]        @relation("chatTo")
+  id            Int            @id @default(autoincrement())
+  slug          String         @unique
+  email         String         @unique
+  password      String
+  userName      String
+  phoneNumber   String         @unique
+  gender        Boolean
+  address       String
+  avatar        String
+  ban           Ban
+  role          Role
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  Posts         Post[]
+  Comments      Comment[]
+  ComInComs     ComInCom[]
+  LikeComInComs LikeComInCom[]
+  LikeComment   LikeComment[]
+  LikePosts     LikePost[]
+  NotifyFrom    Notify[]       @relation("userFrom")
+  NotifyTo      Notify[]       @relation("userTo")
+  FriendFrom    Friend[]       @relation("friendFrom")
+  FriendTo      Friend[]       @relation("friendTo")
+  Saves         SavePost[]
+  Reports       Report[]
+  ChatFrom      Chat[]         @relation("chatFrom")
+  ChatTo        Chat[]         @relation("chatTo")
 }
 
 model Comment {
-  id         Int        @id @default(autoincrement())
-  author     User       @relation(fields: [userId], references: [id])
-  userId     Int
-  postWhere  Post       @relation(fields: [postId], references: [id])
-  postId     Int
-  likeNumber Int
-  content    String
-  ComInComs  ComInCom[]
-  Reports    Report[]
-  updatedAt  DateTime   @updatedAt
-  createdAt  DateTime   @default(now())
+  id           Int           @id @default(autoincrement())
+  author       User          @relation(fields: [userId], references: [id])
+  userId       Int
+  postWhere    Post          @relation(fields: [postId], references: [id])
+  postId       Int
+  likeNumber   Int
+  content      String
+  ComInComs    ComInCom[]
+  likeComment LikeComment[]
+  Reports      Report[]
+  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime      @default(now())
 }
 
 model ComInCom {
-  id         Int           @id @default(autoincrement())
-  author     User          @relation(fields: [userId], references: [id])
-  Comment    Comment?      @relation(fields: [commentId], references: [id])
+  id         Int            @id @default(autoincrement())
+  author     User           @relation(fields: [userId], references: [id])
+  Comment    Comment?       @relation(fields: [commentId], references: [id])
   likeNumber Int
   content    String
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
   userId     Int
   commentId  Int?
-  LikeComs   LikeComment[]
+  LikeComs   LikeComInCom[]
 }
 
 model LikeComment {
+  id        Int      @id @default(autoincrement())
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
+  Comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LikeComInCom {
   id         Int       @id @default(autoincrement())
   User       User?     @relation(fields: [userId], references: [id])
   userId     Int?

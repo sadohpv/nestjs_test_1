@@ -16,12 +16,10 @@ import { PostController } from './controllers/post/post.controller';
 import { PostsService } from './services/posts/posts.service';
 import { CommentController } from './controllers/comment/comment.controller';
 import { CommentService } from './services/comment/comment.service';
-import { LikePostController } from './controllers/like-post/like-post.controller';
-import { LikeCommentController } from './controllers/like-comment/like-comment.controller';
-import { LikeCommentController } from './services/like-comment/like-comment.controller';
-import { LikePostController } from './services/like-post/like-post.controller';
 import { LikePostService } from './services/like-post/like-post.service';
 import { LikeCommentService } from './services/like-comment/like-comment.service';
+import { LikePostController } from './controllers/like-post/like-post.controller';
+import { LikeCommentController } from './controllers/like-comment/like-comment.controller';
 @Module({
   imports: [
     UsersModule,
@@ -40,7 +38,14 @@ import { LikeCommentService } from './services/like-comment/like-comment.service
 
     AuthModule,
   ],
-  controllers: [AppController, AuthController, PostController, CommentController, LikePostController, LikeCommentController],
+  controllers: [
+    AppController,
+    AuthController,
+    PostController,
+    CommentController,
+    LikePostController,
+    LikeCommentController,
+  ],
   providers: [
     AppService,
     {
