@@ -23,6 +23,7 @@ model Post {
   shareNumber   Int
   commentNumber Int
   published     Boolean    @default(false)
+  typeFile      Boolean    @default(false)
   updatedAt     DateTime   @updatedAt
   createdAt     DateTime   @default(now())
   Comments      Comment[]
@@ -62,21 +63,23 @@ model User {
   Reports       Report[]
   ChatFrom      Chat[]         @relation("chatFrom")
   ChatTo        Chat[]         @relation("chatTo")
+  FollowFrom    Follow[]       @relation("followFrom")
+  FollowTo      Follow[]       @relation("followTo")
 }
 
 model Comment {
-  id           Int           @id @default(autoincrement())
-  author       User          @relation(fields: [userId], references: [id])
-  userId       Int
-  postWhere    Post          @relation(fields: [postId], references: [id])
-  postId       Int
-  likeNumber   Int
-  content      String
-  ComInComs    ComInCom[]
+  id          Int           @id @default(autoincrement())
+  author      User          @relation(fields: [userId], references: [id])
+  userId      Int
+  postWhere   Post          @relation(fields: [postId], references: [id])
+  postId      Int
+  likeNumber  Int
+  content     String
+  ComInComs   ComInCom[]
   likeComment LikeComment[]
-  Reports      Report[]
-  updatedAt    DateTime      @updatedAt
-  createdAt    DateTime      @default(now())
+  Reports     Report[]
+  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime      @default(now())
 }
 
 model ComInCom {
@@ -176,6 +179,17 @@ model Chat {
   userTo    Int?
   content   String
   status    ChatType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Follow {
+  id Int @id @default(autoincrement())
+
+  UserFrom   User? @relation(name: "followFrom", fields: [followFrom], references: [id])
+  followFrom Int?
+  UserTo     User? @relation(name: "followTo", fields: [followTo], references: [id])
+  followTo   Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

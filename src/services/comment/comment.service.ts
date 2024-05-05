@@ -69,4 +69,29 @@ export class CommentService {
       return false;
     }
   }
+  async deleteComment(id: number) {
+    try {
+      const post = await this.databaseService.comment.findUnique({
+        where: {
+          id,
+        },
+      });
+      await this.databaseService.post.update({
+        where: {
+          id: post.postId,
+        },
+        data:{
+          commentNumber: { decrement: 1 },
+        }
+      });
+      const result = await this.databaseService.comment.delete({
+        where: {
+          id,
+        },
+      });
+      return result;
+    } catch (e) {
+      return false;
+    }
+  }
 }

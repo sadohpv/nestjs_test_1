@@ -12,13 +12,19 @@ export class PostsService {
 
   async createPost(createPostDto: CreatePostDto) {
     if (await this.checkAuthor(createPostDto.userId)) {
-      const storageImg = await cloudinary.uploader.upload_large(
-        createPostDto.img,
-        {
+      let storageImg: any = {};
+      if (createPostDto.typeFile) {
+        storageImg = await cloudinary.uploader.upload_large(createPostDto.img, {
           folder: 'social_data',
-          // resource_type: 'image',
-        },
-      );
+          resource_type: 'video',
+        });
+      } else {
+        storageImg = await cloudinary.uploader.upload_large(createPostDto.img, {
+          folder: 'social_data',
+          resource_type: 'image',
+        });
+      }
+
       const result = await this.databaseService.post.create({
         data: {
           content: createPostDto.content,
@@ -27,6 +33,7 @@ export class PostsService {
           commentNumber: 0,
           likeNumber: 0,
           shareNumber: 0,
+          typeFile: createPostDto.typeFile,
           published: false,
           sharePostId: createPostDto.sharedPost,
         },
@@ -72,6 +79,7 @@ export class PostsService {
             id: true,
             avatar: true,
             userName: true,
+            slug: true,
           },
         },
       },
@@ -180,7 +188,6 @@ export class PostsService {
           postId: true,
         },
       });
- 
 
       if (result) {
         return result.map((post) => post.postId);
@@ -190,5 +197,26 @@ export class PostsService {
     } catch {
       return false;
     }
+  }
+  async getGuestPost(slug: string, id: number) {
+    const result = await this.databaseService.post.findMany({
+      where: {
+        author: {
+          slug: slug,
+        },
+      },
+      include: {
+        LikePosts: {
+          where: {
+            userId: id,
+          },
+          select: {
+            userId: true,
+          },
+        },
+      },
+    });
+
+    return result;
   }
 }

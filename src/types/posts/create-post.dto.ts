@@ -5,7 +5,6 @@ export class CreatePostDto {
   @IsNumber()
   userId: number;
 
-
   @IsNotEmpty()
   @IsString()
   img: string;
@@ -14,5 +13,8 @@ export class CreatePostDto {
   @IsString()
   content: string;
 
+  @IsNotEmpty()
+  @IsBoolean()
+  typeFile: boolean;
   sharedPost: number | null;
 }

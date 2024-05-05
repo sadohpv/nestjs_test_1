@@ -25,7 +25,11 @@ export class PostController {
   private readonly logger = new LoggerService(PostController.name);
   @PublicRoute()
   @Get(':id')
-  async findAllPost(@Ip() ip: string, @Param('id') id: string, @Res() res: Response) {
+  async findAllPost(
+    @Ip() ip: string,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
     this.logger.log(`Request for all post\t${ip}`, PostController.name);
     const dataPost = await this.postsService.findAllPost();
     const checkLike = await this.postsService.checkLikePost(+id);
@@ -95,5 +99,16 @@ export class PostController {
     // } else {
     //   return res.status(HttpStatus.FORBIDDEN).send({ result });
     // }
+  }
+  @PublicRoute()
+  @Get('guest/:slug/:id')
+  async getGuestPost(
+    @Param('slug') slug: string,
+    @Param('id') id: number,
+    
+  ) {
+    const result = await this.postsService.getGuestPost(slug, +id);
+    // console.log('Controller', result[0].LikePosts);
+    return result;
   }
 }

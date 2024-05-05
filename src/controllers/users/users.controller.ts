@@ -27,9 +27,7 @@ export class UsersController {
 
   @Post()
   @UsePipes(ValidationPipe)
-  create(@Body() createUserDto: CreateUserDto) {
-    
-  }
+  create(@Body() createUserDto: CreateUserDto) {}
 
   @SkipThrottle({ default: false }) // skip limit request per time
   @Get()
@@ -45,9 +43,6 @@ export class UsersController {
       limit: 3,
     },
   }) // Overwrite throttle or create a new throttle
-
-
-  
   @Get('owner')
   findOne(@Req() request: Request) {
     console.log(request);
@@ -65,5 +60,16 @@ export class UsersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);
+  }
+
+  @Get('suggested/:id')
+  getSuggestedFriend(@Param('id') id: string) {
+    return this.usersService.suggestedFriend(+id);
+  }
+
+  @Get('userPage/:slug/:id')
+  getDataForUserPage(@Param('id') id: number, @Param('slug') slug: string) {
+  
+    return this.usersService.getDataForUserPage(slug, +id);
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
@@ -44,6 +45,21 @@ export class CommentController {
     const likeCommentList = await this.commentService.getLikeComment(+idUser);
     if (result) {
       return res.status(HttpStatus.OK).send({ result, likeCommentList });
+    } else {
+      return res.status(HttpStatus.FORBIDDEN).send({ result });
+    }
+  }
+  @PublicRoute()
+  @Delete(':id')
+  async deleteComment(
+    @Res() res: Response,
+    @Param('id') id: string,
+  ) {
+   
+    const result = await this.commentService.deleteComment(+id);
+    
+    if (result) {
+      return res.status(HttpStatus.OK).send({ result });
     } else {
       return res.status(HttpStatus.FORBIDDEN).send({ result });
     }
