@@ -69,7 +69,11 @@ export class UsersController {
 
   @Get('userPage/:slug/:id')
   getDataForUserPage(@Param('id') id: number, @Param('slug') slug: string) {
-  
     return this.usersService.getDataForUserPage(slug, +id);
+  }
+
+  @Get('search/:id/:keyword')
+  getSearchUser(@Param('keyword') keyword: string, @Param('id') id: number) {
+    return this.usersService.getSearchUser(keyword,+id);
   }
 }

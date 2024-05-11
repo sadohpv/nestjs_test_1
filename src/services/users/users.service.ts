@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, Role } from '@prisma/client';
 import { log } from 'console';
+import { take } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
@@ -50,7 +51,7 @@ export class UsersService {
   }
 
   async suggestedFriend(id: number) {
-    const listUser = [2];
+    console.log(id);
     const listSuggested = await this.databaseService.user.findMany({
       where: {
         NOT: {
@@ -63,44 +64,31 @@ export class UsersService {
         slug: true,
         avatar: true,
         userName: true,
+        _count: {
+          select: {
+            Posts: true,
+            FollowFrom: true,
+            FollowTo: true,
+          },
+        },
+        Posts: {
+          select: {
+            img: true,
+            typeFile: true,
+          },
+          take: 3,
+        },
+
+        FollowTo: {
+          where: {
+            followFrom: id,
+          },
+        },
       },
       take: 4,
     });
-    const result = [];
-    await Promise.all(
-      listSuggested.map(async (item: any) => {
-        item.countPost = await this.getCountPost(item.id);
-        item.countFollowing = await this.getCountFollowing(item.id);
-        item.countFollower = await this.getCountFollower(item.id);
-        return result.push(item);
-      }),
-    );
-    console.log(result);
-    return result;
-  }
-  async getCountPost(id: number) {
-    let countPost = await this.databaseService.post.count({
-      where: {
-        userId: id,
-      },
-    });
-    return countPost;
-  }
-  async getCountFollower(id: number) {
-    let countFollower = await this.databaseService.follow.count({
-      where: {
-        followTo: id,
-      },
-    });
-    return countFollower;
-  }
-  async getCountFollowing(id: number) {
-    let countFollowing = await this.databaseService.follow.count({
-      where: {
-        followFrom: id,
-      },
-    });
-    return countFollowing;
+
+    return listSuggested;
   }
 
   async getDataForUserPage(slug: string, id: number) {
@@ -109,6 +97,7 @@ export class UsersService {
         where: {
           slug: slug,
         },
+
         select: {
           email: true,
           id: true,
@@ -119,24 +108,89 @@ export class UsersService {
           gender: true,
           createdAt: true,
           phoneNumber: true,
+          _count: {
+            select: {
+              FollowFrom: true,
+              FollowTo: true,
+              Posts: true,
+            },
+          },
+          FollowTo: {
+            where: {
+              followFrom: id,
+            },
+          },
+          FriendTo: {
+            where: {
+              userFrom: id,
+            },
+          },
+          FriendFrom: {
+            where: {
+              userTo: id,
+            },
+          },
         },
       });
-      const result: any = dataUserPage;
-      await Promise.all([
-        this.getCountPost(dataUserPage.id).then(
-          (count) => (result.countPost = count),
-        ),
-        this.getCountFollowing(dataUserPage.id).then(
-          (count) => (result.countFollowing = count),
-        ),
-        this.getCountFollower(dataUserPage.id).then(
-          (count) => (result.countFollower = count),
-        ),
-      ]);
-    
-      return result;
+
+      return dataUserPage;
     } catch (e) {
       return false;
+    }
+  }
+  async getSearchUser(keyword: string, id: number) {
+    try {
+      
+      let result = await this.databaseService.user.findMany({
+        where: {
+          OR: [
+            {
+              slug: {
+                contains: keyword,
+              },
+            },
+            {
+              address: {
+                contains: keyword,
+              },
+            },
+            {
+              email: {
+                contains: keyword,
+              },
+            },
+            {
+              phoneNumber: {
+                contains: keyword,
+              },
+            },
+            {
+              userName: {
+                contains: keyword,
+              },
+            },
+          ],
+        },
+        select: {
+          email: true,
+          id: true,
+          slug: true,
+          avatar: true,
+          userName: true,
+          address: true,
+          gender: true,
+          phoneNumber: true,
+          FollowTo: {
+            where: {
+              followFrom: id,
+            },
+          },
+        },
+      });
+
+      return result;
+    } catch (e) {
+      return [];
     }
   }
 }

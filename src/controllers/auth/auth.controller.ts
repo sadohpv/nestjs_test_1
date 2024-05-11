@@ -106,4 +106,14 @@ export class AuthController {
       return res.status(HttpStatus.UNAUTHORIZED).send({ EC: 401 });
     }
   }
+
+  @PublicRoute()
+  @Get('logout')
+  @UsePipes(ValidationPipe)
+  async logOut(@Res() res: Response) {
+    this.logger.log(`Request for login user `, AuthController.name);
+    res.clearCookie('accessToken');
+    return res.status(HttpStatus.OK).send({ EC: 401 });
+
+  }
 }

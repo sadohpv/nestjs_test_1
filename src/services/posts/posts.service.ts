@@ -83,6 +83,14 @@ export class PostsService {
           },
         },
       },
+      orderBy: [
+        {
+          createdAt: 'desc',
+        },
+        {
+          likeNumber: 'desc',
+        },
+      ],
     });
   }
 
@@ -198,25 +206,57 @@ export class PostsService {
       return false;
     }
   }
-  async getGuestPost(slug: string, id: number) {
+  async getGuestPost(slug: string) {
     const result = await this.databaseService.post.findMany({
       where: {
         author: {
           slug: slug,
         },
       },
+    });
+    return result;
+  }
+  async getListLikePost(idPost: number, idUser: number) {
+    const result = await this.databaseService.likePost.findMany({
+      where: {
+        postId: idPost,
+      },
       include: {
-        LikePosts: {
-          where: {
-            userId: id,
-          },
+        User: {
           select: {
-            userId: true,
+            email: true,
+            id: true,
+            slug: true,
+            avatar: true,
+            userName: true,
+            _count: {
+              select: {
+                Posts: true,
+                FollowFrom: true,
+                FollowTo: true,
+              },
+            },
+            Posts: {
+              where: {
+                author: {
+                  id: +idUser,
+                },
+              },
+              select: {
+                img: true,
+                typeFile: true,
+              },
+              take: 3,
+            },
+            FollowTo: {
+              where: {
+                followFrom: +idUser,
+              },
+            },
           },
         },
       },
     });
-
     return result;
   }
 }

@@ -18,7 +18,7 @@ export class AuthService {
   async create(createUserDto: CreateUserDto) {
     const checkAccount = await this.findOneAccount(createUserDto.email);
     const checkPhone = await this.findOnePhone(createUserDto.phoneNumber);
-    console.log(checkPhone);
+   
     if (checkAccount === false) {
       if (checkPhone === false) {
         try {

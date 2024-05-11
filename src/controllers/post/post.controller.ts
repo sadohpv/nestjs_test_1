@@ -105,10 +105,23 @@ export class PostController {
   async getGuestPost(
     @Param('slug') slug: string,
     @Param('id') id: number,
-    
+    @Res() res: Response,
   ) {
-    const result = await this.postsService.getGuestPost(slug, +id);
-    // console.log('Controller', result[0].LikePosts);
-    return result;
+    const dataPost = await this.postsService.getGuestPost(slug);
+
+    const checkLike = await this.postsService.checkLikePost(+id);
+    return res.status(HttpStatus.OK).send({ dataPost, checkLike });
+  }
+
+  @PublicRoute()
+  @Get('listLike/:idPost/:idUser')
+  async getListLikePost(
+    @Param('idPost') idPost: number,
+    @Param('idUser') idUser: number,
+    @Res() res: Response,
+  ) {
+    const data = await this.postsService.getListLikePost(+idPost, idUser);
+
+    return res.status(HttpStatus.OK).send({ data });
   }
 }

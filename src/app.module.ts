@@ -20,6 +20,12 @@ import { LikePostService } from './services/like-post/like-post.service';
 import { LikeCommentService } from './services/like-comment/like-comment.service';
 import { LikePostController } from './controllers/like-post/like-post.controller';
 import { LikeCommentController } from './controllers/like-comment/like-comment.controller';
+import { FollowController } from './controllers/follow/follow.controller';
+import { FollowService } from './services/follow/follow.service';
+// import { FollowController } from './controllers/follows/follow.controller';
+import { FriendController } from './controllers/friend/friend.controller';
+import { FriendService } from './services/friend/friend.service';
+
 @Module({
   imports: [
     UsersModule,
@@ -45,6 +51,8 @@ import { LikeCommentController } from './controllers/like-comment/like-comment.c
     CommentController,
     LikePostController,
     LikeCommentController,
+    FollowController,
+    FriendController,
   ],
   providers: [
     AppService,
@@ -61,6 +69,8 @@ import { LikeCommentController } from './controllers/like-comment/like-comment.c
     CommentService,
     LikePostService,
     LikeCommentService,
+    FollowService,
+    FriendService,
   ],
 })
 export class AppModule {}

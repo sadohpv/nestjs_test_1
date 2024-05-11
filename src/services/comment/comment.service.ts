@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateCommentDto } from 'src/types/comments/create-comment.dto';
+import { EditCommentDto } from 'src/types/comments/edit-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -46,6 +47,7 @@ export class CommentService {
               id: true,
               avatar: true,
               userName: true,
+              slug: true,
             },
           },
         },
@@ -80,9 +82,9 @@ export class CommentService {
         where: {
           id: post.postId,
         },
-        data:{
+        data: {
           commentNumber: { decrement: 1 },
-        }
+        },
       });
       const result = await this.databaseService.comment.delete({
         where: {
@@ -90,6 +92,20 @@ export class CommentService {
         },
       });
       return result;
+    } catch (e) {
+      return false;
+    }
+  }
+  async editComment(editCommentDto: EditCommentDto) {
+    try {
+      return await this.databaseService.comment.update({
+        where: {
+          id: editCommentDto.id,
+        },
+        data: {
+          content: editCommentDto.content,
+        },
+      });
     } catch (e) {
       return false;
     }
