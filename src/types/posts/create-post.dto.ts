@@ -17,4 +17,10 @@ export class CreatePostDto {
   @IsBoolean()
   typeFile: boolean;
   sharedPost: number | null;
+
+
+  @IsNotEmpty()
+  @IsBoolean()
+  publish: boolean;
+ 
 }

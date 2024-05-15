@@ -5,7 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
@@ -138,15 +138,16 @@ model Friend {
 }
 
 model Notify {
-  id        Int        @id @default(autoincrement())
-  UserFrom  User?      @relation(name: "userFrom", fields: [userFrom], references: [id])
+  id        Int          @id @default(autoincrement())
+  UserFrom  User?        @relation(name: "userFrom", fields: [userFrom], references: [id])
   userFrom  Int?
-  UserTo    User?      @relation(name: "userTo", fields: [userTo], references: [id])
+  UserTo    User?        @relation(name: "userTo", fields: [userTo], references: [id])
   userTo    Int?
-  type      NotifyType @default(NONE)
-  content   String?    @default("")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  type      NotifyType   @default(NONE)
+  status    NotifyStatus @default(UNREAD)
+  content   String?      @default("")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
 }
 
 model SavePost {
@@ -187,12 +188,12 @@ model Chat {
 model Follow {
   id Int @id @default(autoincrement())
 
-  UserFrom   User? @relation(name: "followFrom", fields: [followFrom], references: [id])
+  UserFrom   User?    @relation(name: "followFrom", fields: [followFrom], references: [id])
   followFrom Int?
-  UserTo     User? @relation(name: "followTo", fields: [followTo], references: [id])
+  UserTo     User?    @relation(name: "followTo", fields: [followTo], references: [id])
   followTo   Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum FriendType {
@@ -207,6 +208,11 @@ enum NotifyType {
   LIKECOMMENT
   LIKEPOST
   NONE
+}
+
+enum NotifyStatus {
+  READ
+  UNREAD
 }
 
 enum ChatType {

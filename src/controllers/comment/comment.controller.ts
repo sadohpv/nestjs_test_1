@@ -23,7 +23,7 @@ export class CommentController {
 
   @PublicRoute()
   @Post('')
-  async likeAndUnlikePost(
+  async createComment(
     @Body() createCommentDto: CreateCommentDto,
     @Res() res: Response,
   ) {

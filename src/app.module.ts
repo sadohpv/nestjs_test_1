@@ -25,6 +25,10 @@ import { FollowService } from './services/follow/follow.service';
 // import { FollowController } from './controllers/follows/follow.controller';
 import { FriendController } from './controllers/friend/friend.controller';
 import { FriendService } from './services/friend/friend.service';
+import { NotifyService } from './services/notify/notify.service';
+import { NotifyController } from './controllers/notify/notify.controller';
+import { ComincomService } from './services/comincom/comincom.service';
+import { ComincomController } from './controllers/comincom/comincom.controller';
 
 @Module({
   imports: [
@@ -53,6 +57,8 @@ import { FriendService } from './services/friend/friend.service';
     LikeCommentController,
     FollowController,
     FriendController,
+    NotifyController,
+    ComincomController,
   ],
   providers: [
     AppService,
@@ -71,6 +77,8 @@ import { FriendService } from './services/friend/friend.service';
     LikeCommentService,
     FollowService,
     FriendService,
+    NotifyService,
+    ComincomService,
   ],
 })
 export class AppModule {}

@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common';
 import slug from 'slug';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateFriendDto } from 'src/types/friends/friend-create.dto';
+import { NotifyService } from '../notify/notify.service';
 
 @Injectable()
 export class FriendService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private notifyService: NotifyService,
+  ) {}
 
   async createFriendRequest(createFriendDto: CreateFriendDto) {
     try {
@@ -16,6 +20,12 @@ export class FriendService {
             userTo: createFriendDto.userTo,
             status: 'REQUIRED',
           },
+        });
+        const notifyMake = this.notifyService.createNotifyAddFriend({
+          userFrom: createFriendDto.userFrom,
+          userTo: createFriendDto.userTo,
+          type: 'ADDFRIEND',
+          content: 'REQUIRED',
         });
         return result;
       } else {
@@ -33,7 +43,10 @@ export class FriendService {
             ],
           },
         });
-
+        await this.notifyService.deleteNotifyFriend(
+          createFriendDto.userFrom,
+          createFriendDto.userTo,
+        );
         return await this.databaseService.friend.delete({
           where: {
             id: result.id,
@@ -71,7 +84,6 @@ export class FriendService {
   }
   async getFriendForMentionComment(id: any) {
     try {
-      console.log(id);
       const result = await this.databaseService.user.findMany({
         where: {
           OR: [

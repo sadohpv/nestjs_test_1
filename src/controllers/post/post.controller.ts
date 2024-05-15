@@ -19,6 +19,7 @@ import { UpdatePostDto } from 'src/types/posts/update-post-dto';
 import { Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { LikePostDto } from 'src/types/posts/like-post.dto';
+import { ChangePublishedPostDto } from 'src/types/posts/change-published.dto';
 @Controller('post')
 export class PostController {
   constructor(private readonly postsService: PostsService) {}
@@ -31,17 +32,39 @@ export class PostController {
     @Res() res: Response,
   ) {
     this.logger.log(`Request for all post\t${ip}`, PostController.name);
-    const dataPost = await this.postsService.findAllPost();
+    const dataPost = await this.postsService.findAllPost(+id);
     const checkLike = await this.postsService.checkLikePost(+id);
     return res.status(HttpStatus.OK).send({ dataPost, checkLike });
   }
+  @PublicRoute()
+  @Get('page/:page/:id')
+  async findPostPage(
+    @Ip() ip: string,
+    @Param('id') id: number,
+
+    @Param('page') page: number,
+    @Res() res: Response,
+  ) {
+    this.logger.log(`Request for page post\t${ip}`, PostController.name);
+    const dataPost = await this.postsService.findPostPage(+page,+id);
+    return res.status(HttpStatus.OK).send({ dataPost });
+  }
 
   @PublicRoute()
-  @Get(':id')
-  findOnePost(@Ip() ip: string, @Param('id') id: string) {
+  @Get('one/:idPost/:idUser')
+  async findOnePost(
+    @Ip() ip: string,
+    @Param('idPost') idPost: number,
+    @Param('idUser') idUser: number,
+    @Res() res: Response,
+  ) {
     this.logger.log(`Request for all post\t${ip}`, PostController.name);
 
-    return this.postsService.findOnePost(+id);
+    const dataPost = await this.postsService.findOnePost(+idPost, +idUser);
+    const checkLike = await this.postsService.checkLikePost(+idUser);
+
+    console.log(checkLike);
+    return res.status(HttpStatus.OK).send({ dataPost, checkLike });
   }
 
   @PublicRoute()
@@ -121,6 +144,19 @@ export class PostController {
     @Res() res: Response,
   ) {
     const data = await this.postsService.getListLikePost(+idPost, idUser);
+
+    return res.status(HttpStatus.OK).send({ data });
+  }
+
+
+  @PublicRoute()
+  @Post('published')
+  async changePublished(
+    @Body() changePublishedDto: ChangePublishedPostDto,
+
+    @Res() res: Response,
+  ) {
+    const data = await this.postsService.changePublished(changePublishedDto);
 
     return res.status(HttpStatus.OK).send({ data });
   }

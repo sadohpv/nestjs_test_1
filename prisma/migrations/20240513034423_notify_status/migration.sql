@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `notify` ADD COLUMN `status` ENUM('READ', 'UNREAD') NOT NULL DEFAULT 'UNREAD';

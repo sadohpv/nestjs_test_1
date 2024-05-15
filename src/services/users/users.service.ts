@@ -51,9 +51,17 @@ export class UsersService {
   }
 
   async suggestedFriend(id: number) {
-    console.log(id);
     const listSuggested = await this.databaseService.user.findMany({
       where: {
+        // NOT: {
+        FollowTo: {
+          every: {
+            followFrom: {
+              not: id,
+            },
+          },
+          // }
+        },
         NOT: {
           id: id,
         },
@@ -140,13 +148,40 @@ export class UsersService {
   }
   async getSearchUser(keyword: string, id: number) {
     try {
-      
+      const keyList = keyword.split(' ');
+      const listSearch = [];
+      keyList.map((item) => {
+        listSearch.push(
+          {
+            slug: {
+              contains: item,
+            },
+          },
+          {
+            address: {
+              contains: item,
+            },
+          },
+          {
+            email: {
+              contains: item,
+            },
+          },
+          {
+            userName: {
+              contains: item,
+            },
+          },
+        );
+      });
       let result = await this.databaseService.user.findMany({
         where: {
           OR: [
+            ...listSearch,
             {
               slug: {
                 contains: keyword,
+                // in: keyList,
               },
             },
             {
@@ -156,11 +191,6 @@ export class UsersService {
             },
             {
               email: {
-                contains: keyword,
-              },
-            },
-            {
-              phoneNumber: {
                 contains: keyword,
               },
             },

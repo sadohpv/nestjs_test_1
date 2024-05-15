@@ -2,21 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateCommentDto } from 'src/types/comments/create-comment.dto';
 import { EditCommentDto } from 'src/types/comments/edit-comment.dto';
+import { NotifyService } from '../notify/notify.service';
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private notifyServices: NotifyService,
+  ) {}
 
   async createComment(createCommentDto: CreateCommentDto) {
     try {
-      await this.databaseService.post.update({
-        where: {
-          id: createCommentDto.postId,
-        },
-        data: {
-          commentNumber: { increment: 1 },
-        },
-      });
       const result = await this.databaseService.comment.create({
         data: {
           userId: createCommentDto.userId,
@@ -25,6 +21,43 @@ export class CommentService {
           likeNumber: 0,
         },
       });
+      const list = createCommentDto.content
+        .split('@t@g')
+        .map((item) => {
+          if (item.includes('@')) {
+            return item.substring(1);
+          } else {
+            return;
+          }
+        })
+        .filter((item) => item);
+
+      const find = await this.databaseService.user.findMany({
+        where: {
+          slug: {
+            in: list,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+      await this.notifyServices.createNotifyComment(
+        createCommentDto.userId,
+        find,
+        result.id,
+        createCommentDto.postId,
+      );
+      console.log('Update commentNumber');
+      await this.databaseService.post.update({
+        where: {
+          id: createCommentDto.postId,
+        },
+        data: {
+          commentNumber: { increment: 1 },
+        },
+      });
+
       return result;
     } catch (e) {
       return false;
@@ -36,6 +69,7 @@ export class CommentService {
         where: {
           postId: id,
         },
+
         orderBy: [
           {
             createdAt: 'desc',
@@ -49,6 +83,23 @@ export class CommentService {
               userName: true,
               slug: true,
             },
+          },
+          ComInComs: {
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  avatar: true,
+                  userName: true,
+                  slug: true,
+                },
+              },
+            },
+            orderBy: [
+              {
+                createdAt: 'desc',
+              },
+            ],
           },
         },
       });
@@ -73,19 +124,46 @@ export class CommentService {
   }
   async deleteComment(id: number) {
     try {
-      const post = await this.databaseService.comment.findUnique({
+      const comment = await this.databaseService.comment.findUnique({
         where: {
           id,
         },
       });
       await this.databaseService.post.update({
         where: {
-          id: post.postId,
+          id: comment.postId,
         },
         data: {
           commentNumber: { decrement: 1 },
         },
       });
+      const list = comment.content
+        .split('@t@g')
+        .map((item) => {
+          if (item.includes('@')) {
+            return item.substring(1);
+          } else {
+            return;
+          }
+        })
+        .filter((item) => item);
+
+      const find = await this.databaseService.user.findMany({
+        where: {
+          slug: {
+            in: list,
+          },
+        },
+        select: {
+          id: true,
+        },
+      });
+      await this.notifyServices.deleteNotifyComment(
+        comment.userId,
+        find,
+        id,
+        comment.postId,
+      );
       const result = await this.databaseService.comment.delete({
         where: {
           id,
