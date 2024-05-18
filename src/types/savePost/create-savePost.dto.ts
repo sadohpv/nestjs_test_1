@@ -1,9 +1,10 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class UpdatePostDto {
+export class CreateSavePostDto {
   @IsNotEmpty()
-  @IsNumber()
-  idPost: number;
+  userId: number;
 
-  content: any;
+  @IsNotEmpty()
+  postId: number;
+
 }

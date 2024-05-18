@@ -7,9 +7,18 @@ import { LikePostDto } from 'src/types/posts/like-post.dto';
 import { UpdatePostDto } from 'src/types/posts/update-post-dto';
 // import { cloudinary } from '../../../src/utils/cloudinary';
 import cloudinary from 'src/utils/cloudinary';
+import { CommentService } from '../comment/comment.service';
+import { ComincomService } from '../comincom/comincom.service';
+import { NotifyService } from '../notify/notify.service';
+import { response } from 'express';
 @Injectable()
 export class PostsService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(
+    private readonly databaseService: DatabaseService,
+    private commentService: CommentService,
+    private comincomService: ComincomService,
+    private notifyService: NotifyService,
+  ) {}
 
   async createPost(createPostDto: CreatePostDto) {
     if (await this.checkAuthor(createPostDto.userId)) {
@@ -199,7 +208,6 @@ export class PostsService {
             avatar: true,
             userName: true,
             slug: true,
-            FollowTo: true,
             _count: {
               select: {
                 Posts: true,
@@ -208,11 +216,46 @@ export class PostsService {
               },
             },
             Posts: {
+              where: {
+                OR: [
+                  {
+                    published: false,
+                  },
+                  {
+                    author: {
+                      OR: [
+                        {
+                          FriendFrom: {
+                            some: {
+                              userTo: id,
+                              status: 'ACCEPTED',
+                            },
+                          },
+                        },
+                        {
+                          FriendTo: {
+                            some: {
+                              userFrom: id,
+                              status: 'ACCEPTED',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
               select: {
                 img: true,
                 typeFile: true,
               },
               take: 3,
+            },
+
+            FollowTo: {
+              where: {
+                followFrom: id,
+              },
             },
           },
         },
@@ -230,31 +273,22 @@ export class PostsService {
     });
   }
 
-  async updatePost(id: number, updatePostDto: UpdatePostDto) {
-    const checkAuthor = await this.databaseService.post.findUnique({
-      where: {
-        id,
-        userId: updatePostDto.userId,
-      },
-    });
-    if (checkAuthor) {
-      try {
-        const result = await this.databaseService.post.update({
-          where: {
-            id,
-            userId: updatePostDto.userId,
-          },
-          data: updatePostDto,
-        });
-        if (result) {
-          return result;
-        } else {
-          return false;
-        }
-      } catch {
+  async updatePost(updatePostDto: UpdatePostDto) {
+    try {
+      const result = await this.databaseService.post.update({
+        where: {
+          id: updatePostDto.idPost,
+        },
+        data: {
+          content: updatePostDto.content,
+        },
+      });
+      if (result) {
+        return result;
+      } else {
         return false;
       }
-    } else {
+    } catch {
       return false;
     }
   }
@@ -353,6 +387,65 @@ export class PostsService {
     });
     return result;
   }
+
+  async getSavePost(slug: string, id: number) {
+    try {
+      const result = await this.databaseService.savePost
+        .findMany({
+          where: {
+            userId: id,
+          },
+          include: {
+            Post: {
+              where: {
+                OR: [
+                  {
+                    published: false,
+                  },
+                  {
+                    author: {
+                      id: id,
+                    },
+                  },
+                ],
+              },
+              include: {
+                author: {
+                  select: {
+                    id: true,
+                    avatar: true,
+                    userName: true,
+                    slug: true,
+                    FollowTo: true,
+                    _count: {
+                      select: {
+                        Posts: true,
+                        FollowFrom: true,
+                        FollowTo: true,
+                      },
+                    },
+                    Posts: {
+                      select: {
+                        img: true,
+                        typeFile: true,
+                      },
+                      take: 3,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+        .then((response) => {
+          return response.map((post) => post.Post);
+        });
+      return result;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async getListLikePost(idPost: number, idUser: number) {
     const result = await this.databaseService.likePost.findMany({
       where: {
@@ -404,6 +497,90 @@ export class PostsService {
       });
       return result;
     } catch (e) {
+      return false;
+    }
+  }
+  async deletePost(id: number) {
+    try {
+      const post = await this.databaseService.post.findUnique({
+        where: {
+          id: id,
+        },
+      });
+      const listComInCom = [];
+      const listComment = [];
+      await this.databaseService.comment
+        .findMany({
+          where: {
+            postId: post.id,
+          },
+          include: {
+            ComInComs: true,
+          },
+        })
+        .then((list) => {
+          list.map((comment) => {
+            listComment.push(comment.id);
+            comment.ComInComs.map((comincom) => {
+              listComInCom.push(comincom.id);
+            });
+          });
+        });
+      await this.databaseService.comment.deleteMany({
+        where: {
+          id: {
+            in: listComment,
+          },
+        },
+      });
+      await this.databaseService.comInCom.deleteMany({
+        where: {
+          id: {
+            in: listComInCom,
+          },
+        },
+      });
+      const result = await this.databaseService.post.delete({
+        where: {
+          id: id,
+        },
+      });
+      await this.notifyService.deletePostNotifyComment(
+        [...listComment, ...listComInCom],
+        id,
+      );
+      return result;
+    } catch (e) {
+      return false;
+    }
+  }
+  async findAllPostSetting(id: number) {
+    try {
+      const post = await this.databaseService.post.findMany({
+        where: {
+          author: {
+            id: id,
+          },
+        },
+      });
+      return post;
+    } catch (error) {
+      return false;
+    }
+  }
+  async checkSavePost(id: number) {
+    try {
+      const save = await this.databaseService.savePost
+        .findMany({
+          where: {
+            userId: id,
+          },
+        })
+        .then((response) => {
+          return response.map((postID) => postID.postId);
+        });
+      return save;
+    } catch (error) {
       return false;
     }
   }

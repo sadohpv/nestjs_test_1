@@ -40,7 +40,6 @@ export class NotifyService {
               userName: true,
             },
           },
-          
         },
         orderBy: [
           {
@@ -153,6 +152,36 @@ export class NotifyService {
       const result = await this.databaseService.notify.deleteMany({
         where: {
           id: { in: userArray },
+        },
+      });
+      return result;
+    } catch (e) {
+      return false;
+    }
+  }
+  async deletePostNotifyComment(listIdComment: any, idPost: any) {
+    try {
+      const checkNotify = [];
+      listIdComment.map((comment: any) => {
+        checkNotify.push(`${comment} ${idPost}`);
+      });
+      const listNotifyDelete = await this.databaseService.notify
+        .findMany({
+          where: {
+            type: 'COMMENT',
+            content: {
+              in: checkNotify,
+            },
+          },
+        })
+        .then((notifies) => {
+          return notifies.map((notify) => notify.id);
+        });
+      const result = await this.databaseService.notify.deleteMany({
+        where: {
+          id: {
+            in: listNotifyDelete,
+          },
         },
       });
       return result;

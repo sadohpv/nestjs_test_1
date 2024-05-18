@@ -82,6 +82,25 @@ export class CommentService {
               avatar: true,
               userName: true,
               slug: true,
+              FollowTo: {
+                where: {
+                  followFrom: id,
+                },
+              },
+              _count: {
+                select: {
+                  Posts: true,
+                  FollowFrom: true,
+                  FollowTo: true,
+                },
+              },
+              Posts: {
+                select: {
+                  img: true,
+                  typeFile: true,
+                },
+                take: 3,
+              },
             },
           },
           ComInComs: {
@@ -92,6 +111,25 @@ export class CommentService {
                   avatar: true,
                   userName: true,
                   slug: true,
+                  FollowTo: {
+                    where: {
+                      followFrom: id,
+                    },
+                  },
+                  _count: {
+                    select: {
+                      Posts: true,
+                      FollowFrom: true,
+                      FollowTo: true,
+                    },
+                  },
+                  Posts: {
+                    select: {
+                      img: true,
+                      typeFile: true,
+                    },
+                    take: 3,
+                  },
                 },
               },
             },

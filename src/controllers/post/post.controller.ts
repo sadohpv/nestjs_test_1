@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Ip,
@@ -34,8 +35,24 @@ export class PostController {
     this.logger.log(`Request for all post\t${ip}`, PostController.name);
     const dataPost = await this.postsService.findAllPost(+id);
     const checkLike = await this.postsService.checkLikePost(+id);
-    return res.status(HttpStatus.OK).send({ dataPost, checkLike });
+    const checkSave = await this.postsService.checkSavePost(+id);
+
+    return res.status(HttpStatus.OK).send({ dataPost, checkLike, checkSave });
   }
+
+  @PublicRoute()
+  @Get('all/:id')
+  async findAllPostSetting(
+    @Ip() ip: string,
+    @Param('id') id: string,
+    @Res() res: Response,
+  ) {
+    this.logger.log(`Request for all post\t${ip}`, PostController.name);
+    const dataPost = await this.postsService.findAllPostSetting(+id);
+    // const checkLike = await this.postsService.checkLikePost(+id);
+    return res.status(HttpStatus.OK).send({ dataPost });
+  }
+
   @PublicRoute()
   @Get('page/:page/:id')
   async findPostPage(
@@ -46,7 +63,7 @@ export class PostController {
     @Res() res: Response,
   ) {
     this.logger.log(`Request for page post\t${ip}`, PostController.name);
-    const dataPost = await this.postsService.findPostPage(+page,+id);
+    const dataPost = await this.postsService.findPostPage(+page, +id);
     return res.status(HttpStatus.OK).send({ dataPost });
   }
 
@@ -87,13 +104,9 @@ export class PostController {
   }
 
   @PublicRoute()
-  @Patch(':id')
-  async updatePost(
-    @Param('id') id: string,
-    @Body() updatePostDto: UpdatePostDto,
-    @Res() res: Response,
-  ) {
-    const result = await this.postsService.updatePost(+id, updatePostDto);
+  @Patch('')
+  async updatePost(@Body() updatePostDto: UpdatePostDto, @Res() res: Response) {
+    const result = await this.postsService.updatePost(updatePostDto);
     if (result) {
       return res.status(HttpStatus.OK).send({ result });
     } else {
@@ -135,7 +148,17 @@ export class PostController {
     const checkLike = await this.postsService.checkLikePost(+id);
     return res.status(HttpStatus.OK).send({ dataPost, checkLike });
   }
-
+  @PublicRoute()
+  @Get('save/:slug/:id')
+  async getSavePost(
+    @Param('slug') slug: string,
+    @Param('id') id: number,
+    @Res() res: Response,
+  ) {
+    const dataPost = await this.postsService.getSavePost(slug, +id);
+    const checkLike = await this.postsService.checkLikePost(+id);
+    return res.status(HttpStatus.OK).send({ dataPost, checkLike });
+  }
   @PublicRoute()
   @Get('listLike/:idPost/:idUser')
   async getListLikePost(
@@ -148,7 +171,6 @@ export class PostController {
     return res.status(HttpStatus.OK).send({ data });
   }
 
-
   @PublicRoute()
   @Post('published')
   async changePublished(
@@ -159,5 +181,19 @@ export class PostController {
     const data = await this.postsService.changePublished(changePublishedDto);
 
     return res.status(HttpStatus.OK).send({ data });
+  }
+
+  @PublicRoute()
+  @Delete(':id')
+  async deletePost(
+    @Ip() ip: string,
+    @Param('id') id: number,
+
+    @Param('page') page: number,
+    @Res() res: Response,
+  ) {
+    this.logger.log(`Request for page post\t${ip}`, PostController.name);
+    const dataPost = await this.postsService.deletePost(+id);
+    return res.status(HttpStatus.OK).send({ dataPost });
   }
 }

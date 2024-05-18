@@ -18,6 +18,11 @@ import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { LoggerService } from 'src/logger/logger.service';
 import { CreateUserDto } from 'src/types/users/create-user.dto';
 import { Request } from 'express';
+import {
+  UpdateAvatarUserDto,
+  UpdatePasswordUserDto,
+  UpdateUserDto,
+} from 'src/types/users/update-user.dto';
 
 @SkipThrottle() // skip limit request per time
 @Controller('users')
@@ -49,11 +54,17 @@ export class UsersController {
     // return this.usersService.findOne(+id);
   }
 
+  @Patch('/password')
+  updatePassword(@Body() updatePassUserDto: UpdatePasswordUserDto) {
+    return this.usersService.updatePassword(updatePassUserDto);
+  }
+
+  @Patch('/avatar')
+  updateAvatar(@Body() updateAvatarUserDto: UpdateAvatarUserDto) {
+    return this.usersService.updateAvatar(updateAvatarUserDto);
+  }
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateUserDto: Prisma.UserUpdateInput,
-  ) {
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
@@ -74,6 +85,11 @@ export class UsersController {
 
   @Get('search/:id/:keyword')
   getSearchUser(@Param('keyword') keyword: string, @Param('id') id: number) {
-    return this.usersService.getSearchUser(keyword,+id);
+    return this.usersService.getSearchUser(keyword, +id);
+  }
+
+  @Get(':id')
+  getUserForSetting(@Param('id') id: number) {
+    return this.usersService.getUserForSetting(+id);
   }
 }

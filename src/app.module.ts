@@ -29,6 +29,8 @@ import { NotifyService } from './services/notify/notify.service';
 import { NotifyController } from './controllers/notify/notify.controller';
 import { ComincomService } from './services/comincom/comincom.service';
 import { ComincomController } from './controllers/comincom/comincom.controller';
+import { SavePostController } from './controllers/save-post/save-post.controller';
+import { SavePostService } from './services/save-post/save-post.service';
 
 @Module({
   imports: [
@@ -59,6 +61,7 @@ import { ComincomController } from './controllers/comincom/comincom.controller';
     FriendController,
     NotifyController,
     ComincomController,
+    SavePostController,
   ],
   providers: [
     AppService,
@@ -79,6 +82,7 @@ import { ComincomController } from './controllers/comincom/comincom.controller';
     FriendService,
     NotifyService,
     ComincomService,
+    SavePostService,
   ],
 })
 export class AppModule {}

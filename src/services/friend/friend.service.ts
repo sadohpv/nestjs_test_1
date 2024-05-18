@@ -3,6 +3,7 @@ import slug from 'slug';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateFriendDto } from 'src/types/friends/friend-create.dto';
 import { NotifyService } from '../notify/notify.service';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class FriendService {
@@ -116,6 +117,69 @@ export class FriendService {
       });
       return result;
     } catch (e) {
+      return false;
+    }
+  }
+
+  async getAllFriend(id: number) {
+    try {
+      const friend = await this.databaseService.friend.findMany({
+        where: {
+          OR: [
+            {
+              userTo: id,
+            },
+            {
+              userFrom: id,
+            },
+          ],
+        },
+        include: {
+          UserFrom: {
+            where: {
+              NOT: {
+                id: id,
+              },
+            },
+            select: {
+              id: true,
+              slug: true,
+              email: true,
+              avatar: true,
+              address: true,
+              userName: true,
+              FollowTo: {
+                where: {
+                  followFrom: id,
+                },
+              },
+            },
+          },
+          UserTo: {
+            where: {
+              NOT: {
+                id: id,
+              },
+            },
+            select: {
+              id: true,
+              slug: true,
+              email: true,
+              avatar: true,
+              address: true,
+              userName: true,
+              FollowTo: {
+                where: {
+                  followFrom: id,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return friend;
+    } catch (error) {
       return false;
     }
   }

@@ -1,5 +1,5 @@
 
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { LoggerService } from 'src/logger/logger.service';
 import { PublicRoute } from 'src/modules/auth/public.decorator';
 
@@ -24,4 +24,5 @@ export class FollowController {
       return res.status(HttpStatus.FORBIDDEN).send({ result });
     }
   }
+
 }
