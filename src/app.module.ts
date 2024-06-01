@@ -31,6 +31,10 @@ import { ComincomService } from './services/comincom/comincom.service';
 import { ComincomController } from './controllers/comincom/comincom.controller';
 import { SavePostController } from './controllers/save-post/save-post.controller';
 import { SavePostService } from './services/save-post/save-post.service';
+import { ReportController } from './controllers/report/report.controller';
+import { ReportService } from './services/report/report.service';
+import { AdminController } from './controllers/admin/admin.controller';
+import { AdminService } from './services/admin/admin.service';
 
 @Module({
   imports: [
@@ -62,6 +66,8 @@ import { SavePostService } from './services/save-post/save-post.service';
     NotifyController,
     ComincomController,
     SavePostController,
+    ReportController,
+    AdminController,
   ],
   providers: [
     AppService,
@@ -83,6 +89,8 @@ import { SavePostService } from './services/save-post/save-post.service';
     NotifyService,
     ComincomService,
     SavePostService,
+    ReportService,
+    AdminService,
   ],
 })
 export class AppModule {}

@@ -83,6 +83,7 @@ export class PostsService {
               avatar: true,
               userName: true,
               slug: true,
+
               FollowTo: true,
               _count: {
                 select: {
@@ -148,6 +149,24 @@ export class PostsService {
             published: false,
           },
         ],
+        author: {
+          AND: [
+            {
+              ban: {
+                not: {
+                  contains: 'POST',
+                },
+              },
+            },
+            {
+              ban: {
+                not: {
+                  contains: 'ACCOUNT',
+                },
+              },
+            },
+          ],
+        },
       },
       include: {
         author: {
@@ -156,6 +175,7 @@ export class PostsService {
             avatar: true,
             userName: true,
             slug: true,
+
             FollowTo: true,
             _count: {
               select: {
@@ -165,6 +185,35 @@ export class PostsService {
               },
             },
             Posts: {
+              where: {
+                OR: [
+                  {
+                    published: false,
+                  },
+                  {
+                    author: {
+                      OR: [
+                        {
+                          FriendFrom: {
+                            some: {
+                              userTo: id,
+                              status: 'ACCEPTED',
+                            },
+                          },
+                        },
+                        {
+                          FriendTo: {
+                            some: {
+                              userFrom: id,
+                              status: 'ACCEPTED',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
               select: {
                 img: true,
                 typeFile: true,
@@ -200,6 +249,24 @@ export class PostsService {
             published: false,
           },
         ],
+        author: {
+          AND: [
+            {
+              ban: {
+                not: {
+                  contains: 'POST',
+                },
+              },
+            },
+            {
+              ban: {
+                not: {
+                  contains: 'ACCOUNT',
+                },
+              },
+            },
+          ],
+        },
       },
       include: {
         author: {
@@ -208,6 +275,7 @@ export class PostsService {
             avatar: true,
             userName: true,
             slug: true,
+
             _count: {
               select: {
                 Posts: true,
@@ -358,7 +426,6 @@ export class PostsService {
 
   async checkLikePost(id: number) {
     try {
-      console.log('ID', id);
       const result = await this.databaseService.likePost.findMany({
         where: {
           userId: id,
@@ -408,6 +475,13 @@ export class PostsService {
                     },
                   },
                 ],
+                author: {
+                  NOT: {
+                    ban: {
+                      contains: 'POST',
+                    },
+                  },
+                },
               },
               include: {
                 author: {

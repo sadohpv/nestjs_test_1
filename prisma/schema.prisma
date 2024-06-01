@@ -46,7 +46,7 @@ model User {
   gender        Boolean
   address       String
   avatar        String
-  ban           Ban
+  ban           String
   role          Role
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -61,11 +61,12 @@ model User {
   FriendFrom    Friend[]       @relation("friendFrom")
   FriendTo      Friend[]       @relation("friendTo")
   Saves         SavePost[]
-  Reports       Report[]
+  Reports       Report[]       @relation("userId")
   ChatFrom      Chat[]         @relation("chatFrom")
   ChatTo        Chat[]         @relation("chatTo")
   FollowFrom    Follow[]       @relation("followFrom")
   FollowTo      Follow[]       @relation("followTo")
+  UserReport    Report[]       @relation("userReport")
 }
 
 model Comment {
@@ -161,16 +162,18 @@ model SavePost {
 }
 
 model Report {
-  id        Int      @id @default(autoincrement())
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    Int?
-  Post      Post?    @relation(fields: [postId], references: [id])
-  postId    Int?
-  Comment   Comment? @relation(fields: [commentId], references: [id])
-  commentId Int?
-  content   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  UserReport User?     @relation(name: "userReport", fields: [userReport], references: [id])
+  userReport Int?
+  User       User?    @relation(name: "userId", fields: [userId], references: [id])
+  userId     Int?
+  Post       Post?    @relation(fields: [postId], references: [id])
+  postId     Int?
+  Comment    Comment? @relation(fields: [commentId], references: [id])
+  commentId  Int?
+  content    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Chat {
@@ -208,6 +211,8 @@ enum NotifyType {
   LIKECOMMENT
   LIKEPOST
   NONE
+  BANCOM
+  BANPOST
 }
 
 enum NotifyStatus {
@@ -226,6 +231,8 @@ enum Ban {
   LIKE
   COMMENT
   NONE
+  POST
+  
 }
 
 enum Role {

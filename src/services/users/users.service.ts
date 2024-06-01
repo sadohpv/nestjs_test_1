@@ -145,17 +145,20 @@ export class UsersService {
   async suggestedFriend(id: number) {
     const listSuggested = await this.databaseService.user.findMany({
       where: {
-        // NOT: {
+        id: {
+          not: id,
+        },
+        ban: {
+          not: {
+            contains: 'ACCOUNT',
+          },
+        },
         FollowTo: {
           every: {
             followFrom: {
               not: id,
             },
           },
-          // }
-        },
-        NOT: {
-          id: id,
         },
       },
       select: {
@@ -328,6 +331,11 @@ export class UsersService {
               },
             },
           ],
+          NOT: {
+            ban: {
+              contains: 'ACCOUNT',
+            },
+          },
         },
         select: {
           email: true,

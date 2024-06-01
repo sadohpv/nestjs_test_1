@@ -189,4 +189,56 @@ export class NotifyService {
       return false;
     }
   }
+  async createNotifyBanCom(id: number) {
+    try {
+      await this.databaseService.notify.create({
+        data: {
+          type: 'LIKECOMMENT',
+          userTo: id,
+        },
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  async deleteNotifyBanCom(id: number) {
+    try {
+      await this.databaseService.notify.deleteMany({
+        where: {
+          type: 'LIKECOMMENT',
+          userTo: id,
+        },
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  async createNotifyBanPost(id: number) {
+    try {
+      await this.databaseService.notify.create({
+        data: {
+          type: 'LIKEPOST',
+          userTo: id,
+        },
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  async deleteNotifyBanPost(id: number) {
+    try {
+      await this.databaseService.notify.deleteMany({
+        where: {
+          type: 'LIKEPOST',
+          userTo: id,
+        },
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

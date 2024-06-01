@@ -87,6 +87,22 @@ export class FriendService {
     try {
       const result = await this.databaseService.user.findMany({
         where: {
+          AND: [
+            {
+              NOT: {
+                ban: {
+                  contains: 'COMMENT',
+                },
+              },
+            },
+            {
+              NOT: {
+                ban: {
+                  contains: 'ACCOUNT',
+                },
+              },
+            },
+          ],
           OR: [
             {
               FriendFrom: {

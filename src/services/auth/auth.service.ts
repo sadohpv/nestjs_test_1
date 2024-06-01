@@ -1,11 +1,12 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Ban, Prisma, Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto, LoginUserDto } from 'src/types/users/create-user.dto';
 
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { BAN } from 'src/types/users/enum';
 var slug = require('slug');
 const saltOrRounds = 2;
 @Injectable()
@@ -18,7 +19,7 @@ export class AuthService {
   async create(createUserDto: CreateUserDto) {
     const checkAccount = await this.findOneAccount(createUserDto.email);
     const checkPhone = await this.findOnePhone(createUserDto.phoneNumber);
-   
+
     if (checkAccount === false) {
       if (checkPhone === false) {
         try {
@@ -37,7 +38,7 @@ export class AuthService {
               gender: createUserDto.gender,
               address: createUserDto.address,
               avatar: '',
-              ban: Ban.NONE,
+              ban: '',
               role: Role.USER,
             },
           });
@@ -205,6 +206,8 @@ export class AuthService {
         avatar: true,
         address: true,
         email: true,
+        role: true,
+        ban: true,
       },
     });
 

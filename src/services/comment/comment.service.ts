@@ -48,7 +48,6 @@ export class CommentService {
         result.id,
         createCommentDto.postId,
       );
-      console.log('Update commentNumber');
       await this.databaseService.post.update({
         where: {
           id: createCommentDto.postId,
@@ -68,6 +67,13 @@ export class CommentService {
       const result = await this.databaseService.comment.findMany({
         where: {
           postId: id,
+          author: {
+            NOT: {
+              ban: {
+                contains: 'COMMENT',
+              },
+            },
+          },
         },
 
         orderBy: [
@@ -104,6 +110,15 @@ export class CommentService {
             },
           },
           ComInComs: {
+            where: {
+              author: {
+                NOT: {
+                  ban: {
+                    contains: 'COMMENT',
+                  },
+                },
+              },
+            },
             include: {
               author: {
                 select: {
@@ -214,6 +229,7 @@ export class CommentService {
   }
   async editComment(editCommentDto: EditCommentDto) {
     try {
+      console.log(editCommentDto);
       return await this.databaseService.comment.update({
         where: {
           id: editCommentDto.id,
